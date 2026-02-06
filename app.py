@@ -9,7 +9,9 @@ st.set_page_config(
 
 st.title("SQLizer – Text to SQL Assistant")
 st.write("Ask questions in English and get results from the database")
-
+question = st.text_input("Ask your question")
+if question:
+    st.write("You asked:",question)
 # ---------- DATABASE CONNECTION ----------
 def get_connection():
     return mysql.connector.connect(
@@ -45,6 +47,7 @@ User question:
 
     response = model.generate_content(prompt)
     return response.text.strip()
+
 
 
 
