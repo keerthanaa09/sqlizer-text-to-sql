@@ -1,52 +1,53 @@
 import streamlit as st
-import mysql.connector
+import sqlite3
 import pandas as pd
 
-st.set_page_config(
-    page_title="SQLizer – Text to SQL Assistant",
-    layout="wide"
-)
-
+# Page title
 st.title("SQLizer – Text to SQL Assistant")
 st.write("Ask questions in English and get results from the database")
+
+# Input
 question = st.text_input("Ask your question")
-if question:
-    st.write("You asked:",question)
-# ---------- DATABASE CONNECTION ----------
-def get_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Iloveme@09",
-        database="college"
-    )
 
-# ---------- TEXT → SQL ----------
-import google.generativeai as genai
-import os
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel("gemini-1.5-flash")
+# Connect to SQLite DB
+conn = sqlite3.connect("college.db")
 
 def generate_sql(question):
-    prompt = f"""
-You are an expert SQL generator.
+    q = question.lower()
 
-Database: MySQL
-Table: students(id, name, marks)
+    if "only student names" in q or "student names" in q:
+        return "SELECT name FROM students"
 
-Rules:
-- Output ONLY SQL
-- No explanation
-- No markdown
-- No backticks
+    elif "marks above" in q:
+        number = ''.join(filter(str.isdigit, q))
+        if number:
+            return f"SELECT * FROM students WHERE marks > {number}"
 
-User question:
-{question}
-"""
+    elif "all students" in q:
+        return "SELECT * FROM students"
 
-    response = model.generate_content(prompt)
-    return response.text.strip()
+    else:
+        return None
+
+# Process question
+if question:
+    st.write("You asked:", question)
+
+    sql = generate_sql(question)
+
+    if sql:
+        st.code(sql, language="sql")
+
+        df = pd.read_sql(sql, conn)
+        st.success("Query executed successfully")
+        st.dataframe(df)
+
+    else:
+        st.warning("Sorry, I could not understand the question.")
+
+conn.close()
+
+
 
 
 
