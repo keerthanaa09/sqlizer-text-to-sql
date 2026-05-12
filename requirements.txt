@@ -2,3 +2,5 @@ streamlit
 mysql-connector-python
 google-generativeai
 pandas
+numpy
+scikit-learn
