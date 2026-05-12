@@ -11,13 +11,10 @@ st.title("SQLizer – Text to SQL Assistant")
 st.write("Ask questions in English and get results from the database")
 
 # ---------- DATABASE CONNECTION ----------
+import sqlite3
+
 def get_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Iloveme@09",
-        database="college"
-    )
+    return sqlite3.connect("college.db")
 
 # ---------- TEXT → SQL ----------
 def generate_sql(question: str):
